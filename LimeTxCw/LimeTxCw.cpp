@@ -24,9 +24,11 @@ int device_error()
 
 void show_usage()
 {
-    cout << "\tread commands :  help , info , stat , temp, " << endl;
-    cout << "\tctrl commands :  txon , txoff , gain [0..70], freq [MHz] " << endl;
-    cout << "\texit command  :  stop " << endl;
+    cout << "LimeTxCw  v0.201" << endl;
+    cout << "\tread cmds     :  help , info , stat , temp, " << endl;
+    cout << "\tctrl cmds     :  txon , txoff , gain [0..70], freq [MHz] " << endl;
+    cout << "\tmisc cmd      :  clr " << endl;
+    cout << "\texit          :  stop " << endl;
     cout << "------------------------------------------------------------ " << endl << endl;
 }
 
@@ -48,11 +50,15 @@ void show_status()
 
     float_type clock;
     LMS_GetClockFreq(device, LMS_CLOCK_REF, &clock);
-    ss << "\tclk_ref = " << fixed << setprecision(2) << clock/1e6 << " MHz\n";
+    ss << "\tclk_ref = " << fixed << setprecision(6) << clock/1e6 << " MHz\n";
+
+    //LMS_GetClockFreq(device, LMS_CLOCK_SXR , &clock);
+    //ss << "\tclk_sxt = " << fixed << setprecision(6) << clock / 1e6 << " MHz\n";
+
 
     float_type myfreq;
     LMS_GetLOFrequency(device, LMS_CH_TX, 0, &myfreq);
-    ss << "\tfreq    = " << defaultfloat << setprecision(8) << myfreq/1e6 << " MHz  ";
+    ss << "\tfreq    = " << defaultfloat << setprecision(8) << myfreq/1e6 << " MHz  \t";
 
     unsigned int mygain;
     LMS_GetGaindB(device, LMS_CH_TX, 0, &mygain);
@@ -64,8 +70,6 @@ void show_status()
 
 int main(int argc, char** argv)
 {
-    cout << "LimeTxCw  v0.1" << endl;
-
     show_usage();
 
     // initial values
@@ -118,14 +122,24 @@ int main(int argc, char** argv)
             }
             else if (cmd.find("gain") != string::npos) {
                 cmd.erase(0, 4);
-                if (LMS_SetGaindB(device, LMS_CH_TX, 0, stoi(cmd)) != 0)
-                    device_error();
+                if (cmd.empty() || (cmd.find_first_of("0123456789") == string::npos))
+                    cout << "\tusage  gain [0..70]" << endl;
+                else
+                    LMS_SetGaindB(device, LMS_CH_TX, 0, stoi(cmd));
             }
             else if (cmd.find("freq") != string::npos) {
                 cmd.erase(0, 4);
-                float_type freq1 = stod(cmd) * 1e6;
-                if (LMS_SetLOFrequency(device, LMS_CH_TX, 0, freq1) != 0)
-                    device_error();
+                if (cmd.empty() || (cmd.find_first_of("0123456789") == string::npos))
+                    cout << "\tusage  freq [MHz]" << endl;
+                else {
+                    float_type freq1 = stod(cmd) * 1e6;
+                    if (LMS_SetLOFrequency(device, LMS_CH_TX, 0, freq1) != 0)
+                        device_error();
+                }
+            }
+            else if (cmd == "clr") {
+                system("CLS");
+                show_usage();
             }
             else if (cmd == "stop") {
                 LMS_Reset(device);
