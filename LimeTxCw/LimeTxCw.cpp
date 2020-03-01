@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
 #include "lime/LimeSuite.h"
 
 
@@ -17,6 +18,7 @@ int device_error()
 {
     if (device != NULL) {
         cout << "ERROR: " << LMS_GetLastErrorMessage() << endl;
+        cout << "err_1001\n";   // device error
         LMS_Close(device);
     }
     exit(-1);
@@ -25,11 +27,12 @@ int device_error()
 void show_usage()
 {
     cout << "LimeTxCw  v0.201" << endl;
-    cout << "\tread cmds     :  help , info , stat , temp, " << endl;
-    cout << "\tctrl cmds     :  txon , txoff , gain [0..70], freq [MHz] " << endl;
+    cout << "\tread cmds     :  help , info , stat , temp=?, " << endl;
+    cout << "\tctrl cmds     :  txon , txoff , gain=[0..70], freq=[MHz] " << endl;
     cout << "\tmisc cmd      :  clr " << endl;
     cout << "\texit          :  stop " << endl;
-    cout << "------------------------------------------------------------ " << endl << endl;
+    cout << "------------------------------------------------------------ " << endl;
+    cout << "cmd_ok\n";
 }
 
 void show_info()
@@ -42,6 +45,7 @@ void show_info()
     ss << "\t" << devInfo->deviceName << "   serial " << hex << uppercase << devInfo->boardSerialNumber << endl;
     cout << ss.str();
     cout << "\thw version " << devInfo->hardwareVersion << "   fw version " << devInfo->firmwareVersion << endl;
+    cout << "cmd_ok\n";
 }
 
 void show_status()
@@ -65,6 +69,7 @@ void show_status()
     ss << "   gain = " << mygain << " dB" << endl;
 
     cout << ss.str();
+    cout << "cmd_ok\n";
 }
 
 
@@ -104,14 +109,17 @@ int main(int argc, char** argv)
         string cmd;
         while (getline(cin, cmd))
         {
+            cmd.erase(std::remove(cmd.begin(), cmd.end(), ' '), cmd.end());
+
             if      (cmd == "help") show_usage();
             else if (cmd == "info") show_info();
             else if (cmd == "stat") show_status();
-            else if (cmd == "temp") {
+            else if (cmd == "temp=?") {
                 float_type temp;
                 if (LMS_GetChipTemperature(device, 0, &temp) < 0)
                     device_error();
                 cout << "\ttemperature = " << temp << endl;
+                cout << "cmd_ok\n";
             }
             else if (cmd == "txon") {
                 LMS_EnableChannel(device, LMS_CH_TX, 0, true);
@@ -119,22 +127,25 @@ int main(int argc, char** argv)
             }
             else if (cmd == "txoff") {
                 LMS_EnableChannel(device, LMS_CH_TX, 0, false);
+                cout << "cmd_ok\n";
             }
-            else if (cmd.find("gain") != string::npos) {
-                cmd.erase(0, 4);
+            else if (cmd.find("gain=") != string::npos) {
+                cmd.erase(0,5);
                 if (cmd.empty() || (cmd.find_first_of("0123456789") == string::npos))
-                    cout << "\tusage  gain [0..70]" << endl;
+                    cout << "\tusage  gain=[0..70]" << endl;
                 else
                     LMS_SetGaindB(device, LMS_CH_TX, 0, stoi(cmd));
+                    cout << "cmd_ok\n";
             }
-            else if (cmd.find("freq") != string::npos) {
-                cmd.erase(0, 4);
+            else if (cmd.find("freq=") != string::npos) {
+                cmd.erase(0,5);
                 if (cmd.empty() || (cmd.find_first_of("0123456789") == string::npos))
-                    cout << "\tusage  freq [MHz]" << endl;
+                    cout << "\tusage  freq=[MHz]" << endl;
                 else {
                     float_type freq1 = stod(cmd) * 1e6;
                     if (LMS_SetLOFrequency(device, LMS_CH_TX, 0, freq1) != 0)
                         device_error();
+                    else cout << "cmd_ok\n";
                 }
             }
             else if (cmd == "clr") {
@@ -143,9 +154,14 @@ int main(int argc, char** argv)
             }
             else if (cmd == "stop") {
                 LMS_Reset(device);
-                if (LMS_Close(device) == 0)
+                if (LMS_Close(device) == 0) {
                     cout << "Closed" << endl;
+                    cout << "cmd_ok\n";
+                }
                 break;
+            }
+            else {
+                cout << "err_1000\n";   // unknown cmd
             }
         }
     }
