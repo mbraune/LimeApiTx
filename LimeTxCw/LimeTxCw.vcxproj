@@ -149,10 +149,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ControlFunctions.cpp" />
     <ClCompile Include="LimeTxCw.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="testcases.h" />
+    <ClInclude Include="ControlFunctions.h" />
+    <ClInclude Include="LimeTxCw.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
