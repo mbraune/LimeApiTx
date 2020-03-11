@@ -81,8 +81,9 @@ void show_usage()
 {
     cout << "LimeTxCw  v0.220" << endl;
     cout << "\tread cmds     :  help,  devid=?,  temp=?, " << endl;
-    cout << "\tctrl cmds     :  gain=[0..70], freq=[MHz] , antenna=" << endl;
-    cout << "\tmisc cmd      :  loadcnf , savecnf, syscmd=clr " << endl;
+    cout << "\tctrl cmds     :  gain_db=[0..70], freq=[MHz] , antenna=" << endl;
+    cout << "\tctrl cmds     :  clock_frq,clkid=[MHz] "<< endl;
+    cout << "\tmisc cmd      :  loadcnf , savecnf, syscmd= " << endl;
     cout << "\texit          :  close " << endl;
     cout << "------------------------------------------------------------ " << endl;
 }
@@ -165,14 +166,16 @@ int main(int argc, char** argv)
 
             switch (eCF) {
                 case CF_syscmd:    handle_syscmd(cmd);     break;
-                case CF_help:      show_usage();           break;
+                case CF_help:      handle_help();          break;
                 case CF_antenna:   show_status();          break;
                 case CF_temp:      handle_temp(cmd);       break;
                 case CF_devid:     handle_devid(cmd);      break;
                 case CF_freq:      handle_freq(cmd);       break;
+                case CF_gain_db:   handle_gain_db(cmd);    break;
 
                 case CF_enab_chan: handle_enab_chan(cmd);  break;
 
+                case CF_clock_frq: handle_clock_frq(cmd);  break;
                 case CF_reset:     handle_reset();         break;
                 case CF_close:     handle_close();         break;
 
