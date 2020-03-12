@@ -3,18 +3,26 @@
 //
 // prototypes
 //
-int handle_syscmd(      const std::string s);
+int handle_syscmd(const std::string s);
 int handle_help();
-int handle_antenna(     const std::string s);
-int handle_ant_bw(      const std::string s);
-int handle_temp(        const std::string s);
-int handle_devid(       const std::string s);
-int handle_freq(        const std::string s);
-int handle_gain_db(     const std::string s);
-int handle_enab_chan(   const std::string s);
-int handle_samp_rate(   const std::string s);
-int handle_loadcnf(     const std::string s);
-int handle_savecnf(     const std::string s);
-int handle_clock_frq(   const std::string s);
-int handle_reset();
+int handle_Devid(const std::string s);
+int handle_Init();
+int handle_Reset();
+int handle_GetChipTemperature(const std::string s);
+int handle_EnableChannel(const std::string s);
+int handle_SetAntenna(const std::string s);
+int handle_GetAntenna(const std::string s);
+int handle_SetLOFrequency(const std::string s);
+int handle_GetLOFrequency(const std::string s);
+int handle_SetGaindB(const std::string s);
+int handle_GetGaindB(const std::string s);
+int handle_SetSampleRate(const std::string s);
+int handle_GetSampleRate(const std::string s);
+int handle_LoadConfig(const std::string s);
+int handle_SaveConfig(const std::string s);
+int handle_Synchronize(const std::string s);
+int handle_SetClockFreq(const std::string s);
+int handle_GetClockFreq(const std::string s);
+int handle_VCTCXORead(const std::string s);
+int handle_VCTCXOWrite(const std::string s);
 int handle_close();

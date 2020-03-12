@@ -16,18 +16,26 @@
     etype(none),      \
     etype(syscmd),    \
     etype(help),      \
-    etype(antenna),   \
-    etype(ant_bw),    \
-    etype(temp),      \
-    etype(devid),     \
-    etype(freq),      \
-    etype(gain_db),   \
-    etype(enab_chan), \
-    etype(samp_rate), \
-    etype(loadcnf),   \
-    etype(savecnf),   \
-    etype(clock_frq), \
-    etype(reset),     \
+    etype(Devid),           \
+    etype(Init),            \
+    etype(Reset),           \
+    etype(GetChipTemperature),  \
+    etype(EnableChannel),       \
+    etype(SetAntenna),          \
+    etype(GetAntenna),          \
+    etype(SetLOFrequency),      \
+    etype(GetLOFrequency),      \
+    etype(SetGaindB),           \
+    etype(GetGaindB),           \
+    etype(SetSampleRate),       \
+    etype(GetSampleRate),       \
+    etype(LoadConfig),          \
+    etype(SaveConfig),          \
+    etype(Synchronize),         \
+    etype(SetClockFreq),        \
+    etype(GetClockFreq),        \
+    etype(VCTCXORead),          \
+    etype(VCTCXOWrite),         \
     etype(close)
 
 #define etype(x) CF_##x
@@ -79,11 +87,12 @@ int device_error()
 
 void show_usage()
 {
-    cout << "LimeTxCw  v0.220" << endl;
-    cout << "\tread cmds     :  help,  devid=?,  temp=?, " << endl;
-    cout << "\tctrl cmds     :  gain_db=[0..70], freq=[MHz] , antenna=" << endl;
-    cout << "\tctrl cmds     :  clock_frq,clkid=[MHz] "<< endl;
-    cout << "\tmisc cmd      :  loadcnf , savecnf, syscmd= " << endl;
+    cout << "LimeTxCw  v0.401" << endl;
+    cout << "\tread cmds     :  help,  Devid,  GetChipTemperature, VCTCXORead" << endl;
+    cout << "\tread cmds     :  GetLOFrequency,  GetGaindB , GetSampleRate, GetClockFreq, GetAntenna" << endl;
+    cout << "\twrite cmds    :  SetLOFrequency,  SetGaindB , SetSampleRate, SetClockFreq, SetAntenna" << endl;
+    cout << "\tctrl cmds     :  Synchronize,  EnableChannel  "<< endl;
+    cout << "\tmisc cmd      :  Reset  , LoadConfig, SaveConfig, syscmd= " << endl;
     cout << "\texit          :  close " << endl;
     cout << "------------------------------------------------------------ " << endl;
 }
@@ -165,19 +174,30 @@ int main(int argc, char** argv)
             }
 
             switch (eCF) {
-                case CF_syscmd:    handle_syscmd(cmd);     break;
-                case CF_help:      handle_help();          break;
-                case CF_antenna:   show_status();          break;
-                case CF_temp:      handle_temp(cmd);       break;
-                case CF_devid:     handle_devid(cmd);      break;
-                case CF_freq:      handle_freq(cmd);       break;
-                case CF_gain_db:   handle_gain_db(cmd);    break;
-
-                case CF_enab_chan: handle_enab_chan(cmd);  break;
-
-                case CF_clock_frq: handle_clock_frq(cmd);  break;
-                case CF_reset:     handle_reset();         break;
-                case CF_close:     handle_close();         break;
+                case CF_none:                                                   break;
+                case CF_syscmd:                 handle_syscmd(cmd);             break;
+                case CF_help:                   handle_help();                  break;
+                case CF_Devid:                  handle_Devid(cmd);              break;
+                case CF_Init:                   handle_Init();                  break;
+                case CF_Reset:                  handle_Reset();                 break;
+                case CF_GetChipTemperature:     handle_GetChipTemperature(cmd); break;
+                case CF_EnableChannel:          handle_EnableChannel(cmd);      break;
+                case CF_SetAntenna:             handle_SetAntenna(cmd);         break;
+                case CF_GetAntenna:             handle_GetAntenna(cmd);         break;
+                case CF_SetLOFrequency:         handle_SetLOFrequency(cmd);     break;
+                case CF_GetLOFrequency:         handle_GetLOFrequency(cmd);     break;
+                case CF_SetGaindB:              handle_SetGaindB(cmd);          break;
+                case CF_GetGaindB:              handle_GetGaindB(cmd);          break;
+                case CF_SetSampleRate:          handle_SetSampleRate(cmd);      break;
+                case CF_GetSampleRate:          handle_GetSampleRate(cmd);      break;
+                case CF_LoadConfig:             handle_LoadConfig(cmd);         break;
+                case CF_SaveConfig:             handle_SaveConfig(cmd);         break;
+                case CF_Synchronize:            handle_Synchronize(cmd);        break;
+                case CF_SetClockFreq:           handle_SetClockFreq(cmd);       break;
+                case CF_GetClockFreq:           handle_GetClockFreq(cmd);       break;
+                case CF_VCTCXORead:             handle_VCTCXORead(cmd);         break;
+                case CF_VCTCXOWrite:            handle_VCTCXOWrite(cmd);        break;
+                case CF_close:                  handle_close();                 break;
 
                 default: break;
             }
