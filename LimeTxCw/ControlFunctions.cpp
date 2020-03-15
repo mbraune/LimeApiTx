@@ -15,7 +15,7 @@ using namespace std;
 //
 
 // extract cmd para1 , if no digit return -1
-int get_digit1(const string cmd) {
+int get_para1(const string cmd) {
     int res = -1;
     size_t pos = cmd.find(",");
     if (pos != string::npos)
@@ -25,8 +25,19 @@ int get_digit1(const string cmd) {
     return res;
 }
 
-// extract cmd for double Para
-float_type get_doublePara(const string cmd) {
+int get_para2(const string cmd) {
+    int res = -1;
+    size_t pos = cmd.find(",");
+    pos = cmd.find(",", pos + 1);
+    if (pos != string::npos)
+        if (isdigit(cmd[pos + 1]))
+            res = (int)(cmd[pos + 1]) - 48;
+
+    return res;
+}
+
+// extract cmd for double Para behind '='
+float_type get_doubleVal(const string cmd) {
     float_type dVal = -9999.9;
     size_t pos = cmd.find("=");
     string s2 = cmd.substr(pos + 1);
@@ -36,15 +47,16 @@ float_type get_doublePara(const string cmd) {
         return stod(s2) * 1e6;
 }
 
-// extract cmd for unsigned int Para
-unsigned get_uintPara(const string cmd) {
-    unsigned iVal = 0;
+// extract cmd for unsigned int Para behind '='
+int get_intVal(const string cmd) {
+    int iVal = -1;
     size_t pos = cmd.find("=");
-    string s2 = cmd.substr(pos + 1);
-    if (s2.empty() || (s2.find_first_of("0123456789") == string::npos))
-        return iVal;
-    else
-        return stoi(s2);
+    if (pos != string::npos) {
+        string s2 = cmd.substr(pos + 1);
+        if (!s2.empty() && (s2.find_first_of("0123456789") != string::npos))
+            return stoi(s2);
+    }
+    return iVal;
 }
 
 
@@ -61,7 +73,7 @@ int ret_cmdok(int i) {
 // execute system command , e.g.
 //      syscmd=cls
 //      or syscmd=ls calls system("ls")
-int handle_syscmd(const std::string s) {
+int handle_Syscmd(const std::string s) {
     int res;
     string s1,s2;
     size_t pos = s.find("=");
@@ -71,9 +83,19 @@ int handle_syscmd(const std::string s) {
     return ret_cmdok(res);
 }
 
-int handle_help()
+int handle_About()
 {
-    show_usage();
+    cout << "\tversion " << LIMETXCW_VERSION << endl;
+    return ret_cmdok(0);
+}
+
+int handle_Help(const std::string s)
+{
+    // if s empty
+    if (s.empty())
+        show_usage();
+    else
+        cout << "\thelp cmd todo \n";
     return ret_cmdok(0);
 }
 
@@ -110,8 +132,10 @@ int handle_GetChipTemperature(const std::string s)
 
 int handle_EnableChannel(const std::string s)
 {
-    bool bEnable = get_uintPara(s);
-    int res = LMS_EnableChannel(device, LMS_CH_TX, 0, bEnable);
+    int res = -1;
+    int enab = get_intVal(s);
+    if(enab != -1)
+        res = LMS_EnableChannel(device, LMS_CH_TX, 0, enab);
     return ret_cmdok(res);
 }
 
@@ -130,7 +154,7 @@ int handle_SetLOFrequency(const std::string s)
     int res = -1;
     float_type f;
 
-    f = get_doublePara(s);
+    f = get_doubleVal(s);
     if (f > 0.0)
         res = LMS_SetLOFrequency(device, LMS_CH_TX, 0, f);
     else
@@ -151,7 +175,7 @@ int handle_GetLOFrequency(const std::string s)
 int handle_SetGaindB(const std::string s)
 {
     int res = -1;
-    unsigned mygain = get_uintPara(s);
+    unsigned mygain = get_intVal(s);
     res = LMS_SetGaindB(device, LMS_CH_TX, 0, mygain);
     return ret_cmdok(res);
 }
@@ -195,7 +219,7 @@ int handle_SetClockFreq(const std::string s)
     int res = -1;
     size_t clkid = LMS_CLOCK_REF;
 
-    if (get_digit1(s) == -1) {
+    if (get_para1(s) == -1) {
         cout << "\tusage  clock_frq,clkid=[MHz]" << endl;
         cout << "\twhere \tclkid 0 = chip ref clock" << endl;
         cout << "\t\tclkid 1 = LMS_CLOCK_SXR" << endl << "\t\tclkid 2 = LMS_CLOCK_SXT" << endl;
@@ -203,8 +227,8 @@ int handle_SetClockFreq(const std::string s)
     }
 
     float_type clock;
-    clkid = get_digit1(s);
-    clock = get_doublePara(s);
+    clkid = get_para1(s);
+    clock = get_doubleVal(s);
     if (clock > 0.0)
         LMS_SetClockFreq(device, clkid, clock);
     return ret_cmdok(res);
@@ -215,7 +239,7 @@ int handle_GetClockFreq(const std::string s)
     int res = -1;
     size_t clkid = LMS_CLOCK_REF;
 
-    if (get_digit1(s) == -1) {
+    if (get_para1(s) == -1) {
         cout << "\tusage  clock_frq,clkid=?" << endl;
         cout << "\twhere \tclkid 0 = LMS_CLOCK_REF" << endl;
         cout << "\t\tclkid 1 = LMS_CLOCK_SXR" << endl << "\t\tclkid 2 = LMS_CLOCK_SXT" << endl;
@@ -223,7 +247,7 @@ int handle_GetClockFreq(const std::string s)
     }
 
     float_type clock;
-    clkid = get_digit1(s);
+    clkid = get_para1(s);
 
     res = LMS_GetClockFreq(device, clkid, &clock);
     stringstream ss;
@@ -247,7 +271,7 @@ int handle_VCTCXOWrite(const std::string s)
 }
 
 
-int handle_close() {
+int handle_Close() {
     int res = LMS_Close(device);
     return ret_cmdok(res);
 }

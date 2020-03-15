@@ -7,15 +7,17 @@
 #include <algorithm>
 #include "lime/LimeSuite.h"
 #include "ControlFunctions.h"
+#include "LimeTxCw.h"
 
 // -----------------------------------
 // -----------------------------------
 
 // below are supported keywords for ControlFunctions
 #define CONTROLFUNCS \
-    etype(none),      \
-    etype(syscmd),    \
-    etype(help),      \
+    etype(None),      \
+    etype(About),      \
+    etype(Syscmd),    \
+    etype(Help),      \
     etype(Devid),           \
     etype(Init),            \
     etype(Reset),           \
@@ -36,7 +38,7 @@
     etype(GetClockFreq),        \
     etype(VCTCXORead),          \
     etype(VCTCXOWrite),         \
-    etype(close)
+    etype(Close)
 
 #define etype(x) CF_##x
 
@@ -52,26 +54,32 @@ static const char* strCtrlFunc[] = { CONTROLFUNCS };
     return strCtrlFunc[static_cast<int>(cf)];
 }*/
 // -----------------------------------
-// -----------------------------------
 
 //------------------------------------
 // global
 //------------------------------------
 lms_device_t* device = NULL;
 
+// -----------------------------------
 
 using namespace std;
 
-// get the enum out of command string
+// get enum out of command string
+// do case insensitive find
 CtrlFunc getCtrlFunc(std::string s)
 {
     const int n = sizeof(strCtrlFunc) / sizeof(strCtrlFunc[0]);
     for (int i = 0; i < n; ++i)
     {
-        if (s.find(strCtrlFunc[i]) != string::npos)
+        //transform szCtrlFunc tolower string
+        string cs = strCtrlFunc[i];
+        transform(cs.begin(), cs.end(), cs.begin(), ::tolower);
+        // transform search string tolower
+        transform(s.begin(), s.end(), s.begin(), ::tolower);
+        if (s.find(cs) != string::npos)
             return (CtrlFunc)i;
     }
-    return CF_none;
+    return CF_None;
 }
 
 
@@ -85,16 +93,25 @@ int device_error()
     exit(-1);
 }
 
+// show list of available commands
+// todo format left
+void show_available_cmds()
+{
+    const int n = sizeof(strCtrlFunc) / sizeof(strCtrlFunc[0]);
+    for (int i = 1; i < n; ++i)
+    {
+        if (i%4 == 0)
+            cout << std::setw(20) << strCtrlFunc[i] << endl;
+        else cout << std::setw(20) << strCtrlFunc[i];
+    }
+}
+
 void show_usage()
 {
-    cout << "LimeTxCw  v0.401" << endl;
-    cout << "\tread cmds     :  help,  Devid,  GetChipTemperature, VCTCXORead" << endl;
-    cout << "\tread cmds     :  GetLOFrequency,  GetGaindB , GetSampleRate, GetClockFreq, GetAntenna" << endl;
-    cout << "\twrite cmds    :  SetLOFrequency,  SetGaindB , SetSampleRate, SetClockFreq, SetAntenna" << endl;
-    cout << "\tctrl cmds     :  Synchronize,  EnableChannel  "<< endl;
-    cout << "\tmisc cmd      :  Reset  , LoadConfig, SaveConfig, syscmd= " << endl;
-    cout << "\texit          :  close " << endl;
-    cout << "------------------------------------------------------------ " << endl;
+    cout << "LimeTxCw " << LIMETXCW_VERSION << endl;
+    cout << "\t available cmds: " << endl;
+    show_available_cmds();
+    cout << "-------------------------------------------------------------------------------- " << endl;
 }
 
 void show_info()
@@ -164,19 +181,25 @@ int main(int argc, char** argv)
         string cmd;
         while (getline(cin, cmd))
         {
+            //remove whitespace
             cmd.erase(std::remove(cmd.begin(), cmd.end(), ' '), cmd.end());
 
-            // check for valid cmd
+            // check for valid cmd , do case insensititve find
             CtrlFunc eCF = getCtrlFunc(cmd);
-            if (eCF == CF_none) {
+            if (eCF == CF_None) {
+                // list available cmds
+                system("cls");
+                cout << cmd  << " - unknown  \t available cmds: " << endl;
+                show_available_cmds();
                 cout << "err_1000\n";
                 continue;
             }
 
             switch (eCF) {
-                case CF_none:                                                   break;
-                case CF_syscmd:                 handle_syscmd(cmd);             break;
-                case CF_help:                   handle_help();                  break;
+                case CF_None:                                                   break;
+                case CF_About:                  handle_About();                 break;
+                case CF_Syscmd:                 handle_Syscmd(cmd);             break;
+                case CF_Help:                   handle_Help(cmd);               break;
                 case CF_Devid:                  handle_Devid(cmd);              break;
                 case CF_Init:                   handle_Init();                  break;
                 case CF_Reset:                  handle_Reset();                 break;
@@ -197,30 +220,13 @@ int main(int argc, char** argv)
                 case CF_GetClockFreq:           handle_GetClockFreq(cmd);       break;
                 case CF_VCTCXORead:             handle_VCTCXORead(cmd);         break;
                 case CF_VCTCXOWrite:            handle_VCTCXOWrite(cmd);        break;
-                case CF_close:                  handle_close();                 break;
+                case CF_Close:                  handle_Close();                 break;
 
                 default: break;
             }
 
-            if (cmd == "txon") {
-                LMS_EnableChannel(device, LMS_CH_TX, 0, true);
-                show_status();
-            }
-            else if (cmd == "txoff") {
-                LMS_EnableChannel(device, LMS_CH_TX, 0, false);
-                cout << "cmd_ok\n";
-            }
-            else if (cmd.find("gain=") != string::npos) {
-                cmd.erase(0,5);
-                if (cmd.empty() || (cmd.find_first_of("0123456789") == string::npos))
-                    cout << "\tusage  gain=[0..70]" << endl;
-                else
-                    LMS_SetGaindB(device, LMS_CH_TX, 0, stoi(cmd));
-                    cout << "cmd_ok\n";
-            }
-            else if (cmd == "close") {
+            if (eCF == CF_Close)
                 break;
-            }
         }
     }
     else {

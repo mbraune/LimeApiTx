@@ -3,8 +3,9 @@
 //
 // prototypes
 //
-int handle_syscmd(const std::string s);
-int handle_help();
+int handle_About();
+int handle_Syscmd(const std::string s);
+int handle_Help(const std::string s);
 int handle_Devid(const std::string s);
 int handle_Init();
 int handle_Reset();
@@ -25,4 +26,4 @@ int handle_SetClockFreq(const std::string s);
 int handle_GetClockFreq(const std::string s);
 int handle_VCTCXORead(const std::string s);
 int handle_VCTCXOWrite(const std::string s);
-int handle_close();
+int handle_Close();
