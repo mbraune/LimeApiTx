@@ -21,12 +21,18 @@
     <ClCompile Include="ControlFunctions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CmdParameter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ControlFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LimeTxCw.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CmdParameter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

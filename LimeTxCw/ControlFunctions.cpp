@@ -25,16 +25,7 @@ int get_para1(const string cmd) {
     return res;
 }
 
-int get_para2(const string cmd) {
-    int res = -1;
-    size_t pos = cmd.find(",");
-    pos = cmd.find(",", pos + 1);
-    if (pos != string::npos)
-        if (isdigit(cmd[pos + 1]))
-            res = (int)(cmd[pos + 1]) - 48;
 
-    return res;
-}
 
 // extract cmd for double Para behind '='
 float_type get_doubleVal(const string cmd) {
@@ -73,12 +64,13 @@ int ret_cmdok(int i) {
 // execute system command , e.g.
 //      syscmd=cls
 //      or syscmd=ls calls system("ls")
-int handle_Syscmd(const std::string s) {
+int handle_Syscmd(const CCmdParameter& cPara) {
     int res;
-    string s1,s2;
-    size_t pos = s.find("=");
-    s1 = s.substr(pos + 1);
-    s2 = "\"" + s1+ "\"";
+    string s1 = cPara.m_stPara[0].valString;
+    //size_t pos1 = s.find("(");
+    //size_t pos2 = s.find(")");
+    //s1 = s.substr(pos1 + 1, pos2-(pos1+1));
+    string s2 = "\"" + s1+ "\"";
     res = system(s2.c_str());
     return ret_cmdok(res);
 }

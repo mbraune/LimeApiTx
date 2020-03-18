@@ -1,10 +1,11 @@
 #pragma once
+#include "CmdParameter.h"
 
 //
 // prototypes
 //
 int handle_About();
-int handle_Syscmd(const std::string s);
+int handle_Syscmd(const CCmdParameter& cPara);
 int handle_Help(const std::string s);
 int handle_Devid(const std::string s);
 int handle_Init();

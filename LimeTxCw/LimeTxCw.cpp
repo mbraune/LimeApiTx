@@ -7,47 +7,13 @@
 #include <algorithm>
 #include "lime/LimeSuite.h"
 #include "ControlFunctions.h"
+#include "CmdParameter.h"
 #include "LimeTxCw.h"
 
 // -----------------------------------
 // -----------------------------------
 
-// below are supported keywords for ControlFunctions
-#define CONTROLFUNCS \
-    etype(None),      \
-    etype(About),      \
-    etype(Syscmd),    \
-    etype(Help),      \
-    etype(Devid),           \
-    etype(Init),            \
-    etype(Reset),           \
-    etype(GetChipTemperature),  \
-    etype(EnableChannel),       \
-    etype(SetAntenna),          \
-    etype(GetAntenna),          \
-    etype(SetLOFrequency),      \
-    etype(GetLOFrequency),      \
-    etype(SetGaindB),           \
-    etype(GetGaindB),           \
-    etype(SetSampleRate),       \
-    etype(GetSampleRate),       \
-    etype(LoadConfig),          \
-    etype(SaveConfig),          \
-    etype(Synchronize),         \
-    etype(SetClockFreq),        \
-    etype(GetClockFreq),        \
-    etype(VCTCXORead),          \
-    etype(VCTCXOWrite),         \
-    etype(Close)
-
-#define etype(x) CF_##x
-
-typedef enum { CONTROLFUNCS } CtrlFunc;
-
-#undef etype
-#define etype(x) #x
-
-static const char* strCtrlFunc[] = { CONTROLFUNCS };
+//static const char* strCtrlFunc[] = { CONTROLFUNCS };
 
 /*const char* enum2str(CtrlFunc cf)
 {
@@ -61,7 +27,6 @@ static const char* strCtrlFunc[] = { CONTROLFUNCS };
 lms_device_t* device = NULL;
 
 // -----------------------------------
-
 using namespace std;
 
 // get enum out of command string
@@ -181,11 +146,15 @@ int main(int argc, char** argv)
         string cmd;
         while (getline(cin, cmd))
         {
-            //remove whitespace
-            cmd.erase(std::remove(cmd.begin(), cmd.end(), ' '), cmd.end());
+            CCmdParameter cPara(cmd);
 
-            // check for valid cmd , do case insensititve find
-            CtrlFunc eCF = getCtrlFunc(cmd);
+            if (!cPara.isValid()) {
+                cout << " - parameter error" << endl;
+                cout << "err_1000\n";
+                continue;
+            }
+
+            CtrlFunc eCF = cPara.getCtrlFunc();
             if (eCF == CF_None) {
                 // list available cmds
                 system("cls");

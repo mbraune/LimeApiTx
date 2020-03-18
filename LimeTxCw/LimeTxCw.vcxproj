@@ -149,10 +149,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CmdParameter.cpp" />
     <ClCompile Include="ControlFunctions.cpp" />
     <ClCompile Include="LimeTxCw.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CmdParameter.h" />
     <ClInclude Include="ControlFunctions.h" />
     <ClInclude Include="LimeTxCw.h" />
   </ItemGroup>
