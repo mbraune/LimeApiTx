@@ -8,19 +8,10 @@
 // perform initialization, parsing and parameter extraction
 CCmdParameter::CCmdParameter(const std::string cmd)
 {
-    m_sRawCmd = cmd;
-    //remove whitespace
-    m_sRawCmd.erase(std::remove(m_sRawCmd.begin(), m_sRawCmd.end(), ' '), m_sRawCmd.end());
+    m_sRawCmd   = cmd;
+    m_sParaList = getParaString(cmd);
 
-    // extract parastring
-    size_t pos1 = m_sRawCmd.find("(");
-    size_t pos2 = m_sRawCmd.find(")");
-    if ((pos1 != std::string::npos) && (pos2 != std::string::npos))
-        m_sParaList = m_sRawCmd.substr(pos1 + 1, pos2 - (pos1 + 1));
-    else
-        m_sParaList = "";
-
-
+    // initialize m_stPara
     resetData();
 
     m_idx = getIndex();
@@ -63,7 +54,6 @@ void CCmdParameter::printUsage()
 {
 }
 
-
 // reset m_stPara
 void CCmdParameter::resetData()
 {
@@ -74,6 +64,22 @@ void CCmdParameter::resetData()
         m_stPara[i].valString   = "nix";
     }
 }
+
+// extract parameter part between ( and )
+// transform string tolower and remove whitespace
+std::string CCmdParameter::getParaString(const std::string s)
+{
+    std::string sp;
+    size_t pos1 = s.find("(");
+    size_t pos2 = s.find(")");
+    if ((pos1 != std::string::npos) && (pos2 != std::string::npos)) {
+        sp = s.substr(pos1 + 1, pos2 - (pos1 + 1));
+        transform(sp.begin(), sp.end(), sp.begin(), ::tolower);
+        sp.erase(std::remove(sp.begin(), sp.end(), ' '), sp.end());         //remove whitespace
+    }
+    return sp;
+}
+
 
 //
 int CCmdParameter::getIndex()
@@ -102,13 +108,26 @@ int CCmdParameter::getIntVal(size_t idx, /*out*/  int *val)
     while (std::getline(tokenStream, token, ','))
     {
         if (nCnt == idx) {
-            // check if "TX" or "RX"
-            *val = stoi(token);
             res = 0;
+            if (token == "tx")      *val = 1;
+            else if (token == "rx") *val = 0;
+            else {
+                try {
+                    *val = stoi(token);
+                }
+                catch (const std::invalid_argument ) {
+                    *val = -1;
+                    res = -1;
+                }
+                catch (const std::exception )
+                {
+                    *val = -1;
+                    res = -1;
+                }
+            }
         }
         nCnt++;
     }
-
     return res;
 }
 
@@ -122,12 +141,22 @@ int CCmdParameter::getFloatVal(size_t idx, /*out*/ float_type *val)
     while (std::getline(tokenStream, token, ','))
     {
         if (nCnt == idx) {
-            *val = stof(token);
             res = 0;
+            try {
+                *val = stof(token);
+            }
+            catch (const std::invalid_argument) {
+                *val = -0.99;
+                res = -1;
+            }
+            catch (const std::exception)
+            {
+                *val = -0.99;
+                res = -1;
+            }
         }
         nCnt++;
     }
-
     return res;
 }
 
@@ -146,7 +175,5 @@ int CCmdParameter::getStringVal(size_t idx, /*out*/ std::string* val)
         }
         nCnt++;
     }
-
     return res;
 }
-

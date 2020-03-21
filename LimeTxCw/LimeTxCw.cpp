@@ -148,48 +148,48 @@ int main(int argc, char** argv)
         {
             CCmdParameter cPara(cmd);
 
+            CtrlFunc eCF = cPara.getCtrlFunc();
+            if (eCF == CF_None) {
+                // list available cmds
+                system("cls");
+                cout << cmd << " - unknown  \t available cmds: " << endl;
+                show_available_cmds();
+                cout << "err_1000\n";
+                continue;
+            }
+
             if (!cPara.isValid()) {
                 cout << " - parameter error" << endl;
                 cout << "err_1000\n";
                 continue;
             }
 
-            CtrlFunc eCF = cPara.getCtrlFunc();
-            if (eCF == CF_None) {
-                // list available cmds
-                system("cls");
-                cout << cmd  << " - unknown  \t available cmds: " << endl;
-                show_available_cmds();
-                cout << "err_1000\n";
-                continue;
-            }
-
             switch (eCF) {
-                case CF_None:                                                   break;
-                case CF_About:                  handle_About();                 break;
-                case CF_Syscmd:                 handle_Syscmd(cmd);             break;
-                case CF_Help:                   handle_Help(cmd);               break;
-                case CF_Devid:                  handle_Devid(cmd);              break;
-                case CF_Init:                   handle_Init();                  break;
-                case CF_Reset:                  handle_Reset();                 break;
-                case CF_GetChipTemperature:     handle_GetChipTemperature(cmd); break;
-                case CF_EnableChannel:          handle_EnableChannel(cmd);      break;
-                case CF_SetAntenna:             handle_SetAntenna(cmd);         break;
-                case CF_GetAntenna:             handle_GetAntenna(cmd);         break;
-                case CF_SetLOFrequency:         handle_SetLOFrequency(cmd);     break;
-                case CF_GetLOFrequency:         handle_GetLOFrequency(cmd);     break;
-                case CF_SetGaindB:              handle_SetGaindB(cmd);          break;
-                case CF_GetGaindB:              handle_GetGaindB(cmd);          break;
-                case CF_SetSampleRate:          handle_SetSampleRate(cmd);      break;
-                case CF_GetSampleRate:          handle_GetSampleRate(cmd);      break;
-                case CF_LoadConfig:             handle_LoadConfig(cmd);         break;
-                case CF_SaveConfig:             handle_SaveConfig(cmd);         break;
-                case CF_Synchronize:            handle_Synchronize(cmd);        break;
-                case CF_SetClockFreq:           handle_SetClockFreq(cmd);       break;
-                case CF_GetClockFreq:           handle_GetClockFreq(cmd);       break;
-                case CF_VCTCXORead:             handle_VCTCXORead(cmd);         break;
-                case CF_VCTCXOWrite:            handle_VCTCXOWrite(cmd);        break;
-                case CF_Close:                  handle_Close();                 break;
+                case CF_None:                                                       break;
+                case CF_About:                  handle_About();                     break;
+                case CF_Syscmd:                 handle_Syscmd(cPara);               break;
+                case CF_Help:                   handle_Help(cPara);                 break;
+                case CF_Devid:                  handle_Devid();                     break;
+                case CF_Init:                   handle_Init();                      break;
+                case CF_Reset:                  handle_Reset();                     break;
+                case CF_GetChipTemperature:     handle_GetChipTemperature(cPara);   break;
+                case CF_EnableChannel:          handle_EnableChannel(cPara);        break;
+                case CF_SetAntenna:             handle_SetAntenna(cPara);           break;
+                case CF_GetAntenna:             handle_GetAntenna(cPara);           break;
+                case CF_SetLOFrequency:         handle_SetLOFrequency(cPara);       break;
+                case CF_GetLOFrequency:         handle_GetLOFrequency(cPara);       break;
+                case CF_SetGaindB:              handle_SetGaindB(cPara);            break;
+                case CF_GetGaindB:              handle_GetGaindB(cPara);            break;
+                case CF_SetSampleRate:          handle_SetSampleRate(cPara);        break;
+                case CF_GetSampleRate:          handle_GetSampleRate(cPara);        break;
+                case CF_LoadConfig:             handle_LoadConfig(cPara);           break;
+                case CF_SaveConfig:             handle_SaveConfig(cPara);           break;
+                case CF_Synchronize:            handle_Synchronize(cPara);          break;
+                case CF_SetClockFreq:           handle_SetClockFreq(cPara);         break;
+                case CF_GetClockFreq:           handle_GetClockFreq(cPara);         break;
+                case CF_VCTCXORead:             handle_VCTCXORead(cPara);           break;
+                case CF_VCTCXOWrite:            handle_VCTCXOWrite(cPara);          break;
+                case CF_Close:                  handle_Close();                     break;
 
                 default: break;
             }

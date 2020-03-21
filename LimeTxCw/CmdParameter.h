@@ -20,8 +20,7 @@ class CCmdParameter
         bool     isValid(){ return m_bValid; }
         CtrlFunc getCtrlFunc() { return m_eCF; }
         void     printUsage();
-
-        stCfPara m_stPara[CF_MAX_PARA];         // parameter values
+        stCfPara m_stPara[CF_MAX_PARA];     // parameter values
 
     private:
         bool m_bValid = false;
@@ -32,11 +31,12 @@ class CCmdParameter
         int         m_idx = -1;
         CtrlFunc    m_eCF = CF_None;
 
-        PAR_TYPE    m_pt[CF_MAX_PARA];  // expected parametertypes
-        size_t      m_nPara = -1;       // expected num of parameters
+        PAR_TYPE    m_pt[CF_MAX_PARA];      // expected parametertypes
+        size_t      m_nPara = -1;           // expected num of parameters
 
-        void    resetData();
-        int     getIndex();
+        void        resetData();
+        std::string getParaString(const std::string s);
+        int         getIndex();
 
         // extract paras from string
         int     getIntVal(size_t idx, /*out*/ int *val);
