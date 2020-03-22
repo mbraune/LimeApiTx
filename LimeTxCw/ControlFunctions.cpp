@@ -21,32 +21,27 @@ int ret_cmdok(int i) {
 //############################################
 // handle_cmd  functions
 
-// execute system command , e.g.
-//      syscmd=cls
-//      or syscmd=ls calls system("ls")
-int handle_Syscmd(const CCmdParameter& cPara) 
-{
-    int res;
-    string s1 = cPara.m_stPara[0].valString;
-    string s2 = "\"" + s1+ "\"";
-    res = system(s2.c_str());
-    return ret_cmdok(res);
-}
-
 int handle_About()
 {
     cout << "\tversion " << LIMETXCW_VERSION << endl;
     return ret_cmdok(0);
 }
 
-int handle_Help(const CCmdParameter& cPara)
+int handle_Help()
 {
-    // if s empty
-    if (cPara.m_stPara[0].valString.empty())
-        show_usage();
-    else
-        cout << "\thelp cmd todo \n";
+    show_usage();
     return ret_cmdok(0);
+}
+
+// execute system command
+//  e.g. syscmd(cls)  or syscmd(ls)
+int handle_Syscmd(const CCmdParameter& cPara)
+{
+    int res = -1;
+    string s1 = cPara.m_stPara[0].valString;
+    string s2 = "\"" + s1 + "\"";
+    res = system(s2.c_str());
+    return ret_cmdok(res);
 }
 
 int handle_Devid()
@@ -74,7 +69,7 @@ int handle_Reset()
 int handle_GetChipTemperature(const CCmdParameter& cPara)
 {
     int res = -1;
-    size_t chipindex = 0;  //
+    size_t chipindex = 0;  //  error if index !=0
     float_type temp;
     res = LMS_GetChipTemperature(device, chipindex, &temp);
     cout << "\t" << temp << endl;
@@ -118,7 +113,7 @@ int handle_SetLOFrequency(const CCmdParameter& cPara)
     bool bTx     = (cPara.m_stPara[0].valInt == 1);
     size_t ch    = cPara.m_stPara[1].valInt;
     float_type f = cPara.m_stPara[2].valFloat;
-    res = LMS_SetLOFrequency(device, bTx, ch, f);
+    res = LMS_SetLOFrequency(device, bTx, ch, f*1e6);
     return ret_cmdok(res);
 }
 
@@ -129,7 +124,10 @@ int handle_GetLOFrequency(const CCmdParameter& cPara)
     size_t ch = cPara.m_stPara[1].valInt;
     float_type f;
     res = LMS_GetLOFrequency(device, bTx, ch, &f);
-    cout << "\t" << f << endl;
+
+    stringstream ss;
+    ss << "\t" << fixed << setprecision(6) << f / 1e6 << " MHz\n";
+    cout << ss.str();
     return ret_cmdok(res);
 }
 
@@ -159,7 +157,7 @@ int handle_SetSampleRate(const CCmdParameter& cPara)
     int res = -1;
     float_type rate = cPara.m_stPara[0].valFloat;
     size_t over     = cPara.m_stPara[1].valInt;
-    res = LMS_SetSampleRate(device, rate, over);
+    res = LMS_SetSampleRate(device, rate*1e6, over);
     return ret_cmdok(res);
 }
 
@@ -172,24 +170,33 @@ int handle_GetSampleRate(const CCmdParameter& cPara)
     float_type f_host;
     float_type f_rf;
     res = LMS_GetSampleRate(device, bTx, ch, &f_host, &f_rf);
-    cout << "\t" << f_host << endl;
-    cout << "\t" << f_rf << endl;
+    cout << "\t" << f_host/ 1e6 << " MHz"  << endl;
+    cout << "\t" << f_rf/1e6    << " MHz"  << endl;
     return ret_cmdok(res);
 }
 
 int handle_LoadConfig(const CCmdParameter& cPara)
 {
-    return 0;
+    int res = -1;
+    const char* file = cPara.m_stPara[0].valString.c_str();
+    res = LMS_LoadConfig(device, file);
+    return ret_cmdok(res);
 }
 
 int handle_SaveConfig(const CCmdParameter& cPara)
 {
-    return 0;
+    int res = -1;
+    const char* file = cPara.m_stPara[0].valString.c_str();
+    res = LMS_SaveConfig(device, file);
+    return ret_cmdok(res);
 }
 
 int handle_Synchronize(const CCmdParameter& cPara)
 {
-    return 0;
+    int res = -1;
+    bool bTochip = (cPara.m_stPara[0].valInt == 1);
+    res = LMS_Synchronize(device, bTochip);
+    return ret_cmdok(res);
 }
 
 int handle_SetClockFreq(const CCmdParameter& cPara)
@@ -197,16 +204,7 @@ int handle_SetClockFreq(const CCmdParameter& cPara)
     int res = -1;
     size_t clkid = cPara.m_stPara[0].valInt;
     float_type f = cPara.m_stPara[1].valFloat;
-
-/*
-    if (get_para1(s) == -1) {
-        cout << "\tusage  clock_frq,clkid=[MHz]" << endl;
-        cout << "\twhere \tclkid 0 = chip ref clock" << endl;
-        cout << "\t\tclkid 1 = LMS_CLOCK_SXR" << endl << "\t\tclkid 2 = LMS_CLOCK_SXT" << endl;
-        return ret_cmdok(res);
-    }*/
-
-    LMS_SetClockFreq(device, clkid, f);
+    LMS_SetClockFreq(device, clkid, f*1e6);
     return ret_cmdok(res);
 }
 
@@ -217,7 +215,7 @@ int handle_GetClockFreq(const CCmdParameter& cPara)
     float_type f;
     res = LMS_GetClockFreq(device, clkid, &f);
     stringstream ss;
-    ss << "\t" << fixed << setprecision(6) << f / 1e6 << " MHz\n";
+    ss << "\t" << fixed << setprecision(6) << f/1e6 << " MHz\n";
     cout << ss.str();
     return ret_cmdok(res);
 }
@@ -233,7 +231,10 @@ int handle_VCTCXORead(const CCmdParameter& cPara)
 
 int handle_VCTCXOWrite(const CCmdParameter& cPara)
 {
-    return 0;
+    int res = -1;
+    uint16_t val = cPara.m_stPara[0].valInt;
+    res = LMS_VCTCXOWrite(device, val);
+    return ret_cmdok(res);
 }
 
 

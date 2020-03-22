@@ -9,6 +9,7 @@
 CCmdParameter::CCmdParameter(const std::string cmd)
 {
     m_sRawCmd   = cmd;
+    m_bHelp     = (m_sRawCmd.find('?' ) != std::string::npos);
     m_sParaList = getParaString(cmd);
 
     // initialize m_stPara
@@ -18,6 +19,7 @@ CCmdParameter::CCmdParameter(const std::string cmd)
     if (m_idx >= 0) {
         m_bValid = true;
         m_eCF = (CtrlFunc)m_idx;
+        m_sUsage = "usage  : " + cf_usage[m_idx];
 
         // get expected number of parameters and parameter types
         m_nPara = 0;
@@ -50,9 +52,6 @@ CCmdParameter::CCmdParameter(const std::string cmd)
 
 }
 
-void CCmdParameter::printUsage()
-{
-}
 
 // reset m_stPara
 void CCmdParameter::resetData()

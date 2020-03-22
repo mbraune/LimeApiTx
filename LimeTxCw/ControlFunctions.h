@@ -5,8 +5,8 @@
 // prototypes
 //
 int handle_About();
+int handle_Help();
 int handle_Syscmd(const CCmdParameter& cPara);
-int handle_Help(const CCmdParameter& cPara);
 int handle_Devid();
 int handle_Init();
 int handle_Reset();

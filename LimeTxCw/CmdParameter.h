@@ -17,16 +17,18 @@ class CCmdParameter
     public:
         CCmdParameter(const std::string cmd);  // do initialization, parsing and parameter extraction
 
-        bool     isValid(){ return m_bValid; }
-        CtrlFunc getCtrlFunc() { return m_eCF; }
-        void     printUsage();
-        stCfPara m_stPara[CF_MAX_PARA];     // parameter values
+        bool        needHelp() { return m_bHelp; }
+        bool        isValid(){ return m_bValid; }
+        CtrlFunc    getCtrlFunc() { return m_eCF; }
+        std::string getUsage() { return m_sUsage;  }
+        stCfPara    m_stPara[CF_MAX_PARA];     // parameter values
 
     private:
+        bool m_bHelp  = false;
         bool m_bValid = false;
         std::string m_sRawCmd;
         std::string m_sParaList;
-        std::string usage = "";
+        std::string m_sUsage = "";
 
         int         m_idx = -1;
         CtrlFunc    m_eCF = CF_None;

@@ -100,7 +100,7 @@ void show_status()
 
     float_type myfreq;
     LMS_GetLOFrequency(device, LMS_CH_TX, 0, &myfreq);
-    ss << "\tfreq    = " << defaultfloat << setprecision(8) << myfreq/1e6 << " MHz  \t";
+    ss << "\tfreq    = " << fixed << setprecision(6) << myfreq/1e6 << " MHz  \t";
 
     unsigned int mygain;
     LMS_GetGaindB(device, LMS_CH_TX, 0, &mygain);
@@ -158,8 +158,15 @@ int main(int argc, char** argv)
                 continue;
             }
 
+            if (cPara.needHelp()) {
+                cout << "\t" << cPara.getUsage()  << endl;
+                cout << "err_1000\n";
+                continue;
+            }
+
             if (!cPara.isValid()) {
-                cout << " - parameter error" << endl;
+                cout << "\tparameter error" << endl;
+                cout << "\t" << cPara.getUsage() << endl;
                 cout << "err_1000\n";
                 continue;
             }
@@ -168,7 +175,7 @@ int main(int argc, char** argv)
                 case CF_None:                                                       break;
                 case CF_About:                  handle_About();                     break;
                 case CF_Syscmd:                 handle_Syscmd(cPara);               break;
-                case CF_Help:                   handle_Help(cPara);                 break;
+                case CF_Help:                   handle_Help();                      break;
                 case CF_Devid:                  handle_Devid();                     break;
                 case CF_Init:                   handle_Init();                      break;
                 case CF_Reset:                  handle_Reset();                     break;
