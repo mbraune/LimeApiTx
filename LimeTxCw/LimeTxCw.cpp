@@ -11,15 +11,6 @@
 #include "LimeTxCw.h"
 
 // -----------------------------------
-// -----------------------------------
-
-//static const char* strCtrlFunc[] = { CONTROLFUNCS };
-
-/*const char* enum2str(CtrlFunc cf)
-{
-    return strCtrlFunc[static_cast<int>(cf)];
-}*/
-// -----------------------------------
 
 //------------------------------------
 // global
@@ -28,24 +19,6 @@ lms_device_t* device = NULL;
 
 // -----------------------------------
 using namespace std;
-
-// get enum out of command string
-// do case insensitive find
-CtrlFunc getCtrlFunc(std::string s)
-{
-    const int n = sizeof(strCtrlFunc) / sizeof(strCtrlFunc[0]);
-    for (int i = 0; i < n; ++i)
-    {
-        //transform szCtrlFunc tolower string
-        string cs = strCtrlFunc[i];
-        transform(cs.begin(), cs.end(), cs.begin(), ::tolower);
-        // transform search string tolower
-        transform(s.begin(), s.end(), s.begin(), ::tolower);
-        if (s.find(cs) != string::npos)
-            return (CtrlFunc)i;
-    }
-    return CF_None;
-}
 
 
 int device_error()

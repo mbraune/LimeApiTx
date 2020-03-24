@@ -3,6 +3,12 @@
 
 #define LIMETXCW_VERSION "0.500"
 
+// global variables:
+extern lms_device_t* device;
+
+// prototypes 
+void show_usage();
+
 typedef enum _PAR_TYPE
 {
     pt_None,
@@ -45,6 +51,8 @@ typedef enum _PAR_TYPE
 typedef enum { CONTROLFUNCS } CtrlFunc;
 #undef etype
 #define etype(x) #x
+
+static const char* strCtrlFunc[] = { CONTROLFUNCS };
 
 #define CF_MAX_PARA 4
 
@@ -104,14 +112,4 @@ const std::string cf_usage[] = {
     "VCTCXOWrite(int dacvalue)                   \n\texample: VCTCXOWrite(65550)",
     "Close()"
 };
-
-
-static const char* strCtrlFunc[] = { CONTROLFUNCS };
-
-// global variables:
-extern lms_device_t* device;
-
-// prototypes 
-void show_usage();
-
 

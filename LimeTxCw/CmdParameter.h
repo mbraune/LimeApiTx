@@ -17,11 +17,11 @@ class CCmdParameter
     public:
         CCmdParameter(const std::string cmd);  // do initialization, parsing and parameter extraction
 
-        bool        needHelp() { return m_bHelp; }
-        bool        isValid(){ return m_bValid; }
-        CtrlFunc    getCtrlFunc() { return m_eCF; }
-        std::string getUsage() { return m_sUsage;  }
-        stCfPara    m_stPara[CF_MAX_PARA];     // parameter values
+        bool        needHelp()      { return m_bHelp; }
+        bool        isValid()       { return m_bValid; }
+        CtrlFunc    getCtrlFunc()   { return m_eCF; }
+        std::string getUsage()      { return m_sUsage;  }
+        stCfPara    m_stPara[CF_MAX_PARA];     // holds the data
 
     private:
         bool m_bHelp  = false;
@@ -36,11 +36,10 @@ class CCmdParameter
         PAR_TYPE    m_pt[CF_MAX_PARA];      // expected parametertypes
         size_t      m_nPara = -1;           // expected num of parameters
 
-        void        resetData();
-        std::string getParaString(const std::string s);
+        std::string getParaListString(const std::string s);  // extract m_sParaList out of m_sRawCmd
         int         getIndex();
 
-        // extract paras from string
+        // extract paras from m_sParaList
         int     getIntVal(size_t idx, /*out*/ int *val);
         int     getFloatVal(size_t idx, /*out*/ float_type* val);
         int     getStringVal(size_t idx, /*out*/ std::string* val);

@@ -1,7 +1,6 @@
 #include "CmdParameter.h"
 #include "LimeTxCw.h"
 #include <algorithm>
-#include <vector>
 #include <sstream>
 
 // constructor
@@ -10,10 +9,16 @@ CCmdParameter::CCmdParameter(const std::string cmd)
 {
     m_sRawCmd   = cmd;
     m_bHelp     = (m_sRawCmd.find('?' ) != std::string::npos);
-    m_sParaList = getParaString(cmd);
+    m_sParaList = getParaListString(cmd);
 
-    // initialize m_stPara
-    resetData();
+    // initialize m_stPara stCfPara    
+    //reset the data
+    for (int i = 0; i < CF_MAX_PARA; i++) {
+        m_stPara[i].ptype = pt_None;
+        m_stPara[i].valInt = -1;
+        m_stPara[i].valFloat = -9999.9;
+        m_stPara[i].valString = "nix";
+    }
 
     m_idx = getIndex();
     if (m_idx >= 0) {
@@ -21,7 +26,7 @@ CCmdParameter::CCmdParameter(const std::string cmd)
         m_eCF = (CtrlFunc)m_idx;
         m_sUsage = "usage  : " + cf_usage[m_idx];
 
-        // get expected number of parameters and parameter types
+        // set expected number of parameters and parameter types for this idx
         m_nPara = 0;
         for (int i = 0; i < CF_MAX_PARA; i++) {
             m_pt[i] = cf_ParaT[m_idx][i];
@@ -29,12 +34,13 @@ CCmdParameter::CCmdParameter(const std::string cmd)
         }
     }
 
-    // fill m_stData if parameter available
-    for (int i = 0; i < m_nPara; i++) {
-        m_stPara[i].ptype = m_pt[i];
+    // if valid and num parameters>0 , extract parameter from string
+    if (m_bValid) {
+        for (int i = 0; i < m_nPara; i++) {
+            m_stPara[i].ptype = m_pt[i];
 
-        int res = -1; 
-        switch (m_pt[i]) {
+            int res = -1;
+            switch (m_pt[i]) {
             case pt_Int:
                 res = getIntVal(i, &m_stPara[i].valInt);
                 break;
@@ -44,35 +50,24 @@ CCmdParameter::CCmdParameter(const std::string cmd)
             case pt_String:
                 res = getStringVal(i, &m_stPara[i].valString);
                 break;
+            }
+            m_bValid = (res == 0);
+
+            if (!m_bValid) break;
         }
-        m_bValid = (res == 0);
-
-        if (!m_bValid) break;
-    }
-
-}
-
-
-// reset m_stPara
-void CCmdParameter::resetData()
-{
-    for (int i = 0; i < CF_MAX_PARA; i++) {
-        m_stPara[i].ptype       = pt_None;
-        m_stPara[i].valInt      = -1;
-        m_stPara[i].valFloat    = -9999.9;
-        m_stPara[i].valString   = "nix";
     }
 }
+
 
 // extract parameter part between ( and )
 // transform string tolower and remove whitespace
-std::string CCmdParameter::getParaString(const std::string s)
+std::string CCmdParameter::getParaListString(const std::string s)
 {
     std::string sp;
-    size_t pos1 = s.find("(");
-    size_t pos2 = s.find(")");
-    if ((pos1 != std::string::npos) && (pos2 != std::string::npos)) {
-        sp = s.substr(pos1 + 1, pos2 - (pos1 + 1));
+    size_t p1 = s.find("(");
+    size_t p2 = s.find(")");
+    if ((p1 != std::string::npos) && (p2 != std::string::npos)) {
+        sp = s.substr(p1+1, p2-(p1+1));
         transform(sp.begin(), sp.end(), sp.begin(), ::tolower);
         sp.erase(std::remove(sp.begin(), sp.end(), ' '), sp.end());         //remove whitespace
     }
